@@ -1,0 +1,20 @@
+name = "drive-command-center-api"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_BASE_URL = "http://localhost:5173"
+GOOGLE_REDIRECT_URI = "http://localhost:8787/api/auth/google/callback"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Configure secrets with:
+# wrangler secret put GOOGLE_CLIENT_ID
+# wrangler secret put GOOGLE_CLIENT_SECRET
+# wrangler secret put TOKEN_ENCRYPTION_KEY
+# wrangler secret put SESSION_SECRET
+# wrangler secret put SUPABASE_URL
+# wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+# Never commit .dev.vars or production secrets.

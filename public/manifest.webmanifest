@@ -1,0 +1,12 @@
+{
+  "name": "Google Drive Command Center",
+  "short_name": "Drive Center",
+  "description": "Private multi-account Google Drive management workspace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1422",
+  "theme_color": "#101a2b",
+  "icons": [
+    {"src": "/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
