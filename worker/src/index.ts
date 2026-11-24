@@ -1,5 +1,5 @@
 import type { Env, AccountRow, DriveFileRow } from "./types";
-import { db } from "./supabase";
+import { db } from "./d1";
 import { encryptSecret, hmac, safeEqual } from "./crypto";
 import { exchangeCode, googleAuthUrl, googleIdentity, googleApi, refreshAccessToken } from "./google";
 import { createInsight } from "./ai";

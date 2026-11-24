@@ -1,4 +1,5 @@
 export interface Env {
+  DB: D1Database;
   APP_BASE_URL: string;
   OWNER_EMAIL: string;
   GOOGLE_REDIRECT_URI: string;
@@ -6,8 +7,6 @@ export interface Env {
   GOOGLE_CLIENT_SECRET: string;
   TOKEN_ENCRYPTION_KEY: string;
   SESSION_SECRET: string;
-  SUPABASE_URL: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
   GROQ_API_KEY?: string;
   GROQ_MODEL?: string;
 }

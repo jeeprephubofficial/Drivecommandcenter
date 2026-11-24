@@ -46,7 +46,7 @@ This is an implementation starter, not a production-certified service.
 
 - Node.js 20+ and npm
 - Cloudflare account and Wrangler access
-- Supabase project
+- Cloudflare account with D1 and Workers access
 - Google Cloud project with Drive API and Gmail API enabled
 - OAuth consent screen configured
 - Authorized OAuth redirect URI matching the Worker URL
@@ -58,7 +58,7 @@ This is an implementation starter, not a production-certified service.
 ```bash
 npm install
 cp .env.example .env.local
-# Set VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY and VITE_API_BASE_URL
+# Set VITE_API_BASE_URL to the deployed Worker URL
 npm run dev
 ```
 
@@ -73,8 +73,6 @@ wrangler secret put GOOGLE_CLIENT_ID
 wrangler secret put GOOGLE_CLIENT_SECRET
 wrangler secret put TOKEN_ENCRYPTION_KEY
 wrangler secret put SESSION_SECRET
-wrangler secret put SUPABASE_URL
-wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 wrangler secret put OWNER_EMAIL
 npm run dev
 ```
@@ -83,19 +81,13 @@ Set `APP_BASE_URL` and `GOOGLE_REDIRECT_URI` in `worker/wrangler.toml` for your 
 
 ## Database setup
 
-Review and apply migrations in order:
-
-- `supabase/migrations/0001_initial_schema.sql`
-- `supabase/migrations/0002_owner_only_auth_and_access_monitoring.sql`
-- `supabase/migrations/0003_scalable_sync_ai_insights.sql`
-
-The second migration adds private owner session and access-event tables. Neither table is readable or writable by browser roles. The Worker uses the Supabase service role only after server-side owner/session checks. Never expose the service-role key in frontend variables.
+The application uses Cloudflare D1 directly; Supabase is not required. The production database is `drive-command-center-db` and is bound to the Worker as `DB`. The complete SQLite migration is `worker/migrations/0001_drive_command_center.sql`. Apply it with `npx wrangler d1 migrations apply drive-command-center-db --remote` after authenticating Wrangler, or use the Cloudflare dashboard's D1 console. The Worker is the only privileged data plane and all owner/session checks remain server-side.
 
 \n## Owner-only login and first account creation
 
 There is no public sign-up form, invite link, guest mode, or user registration endpoint. The first owner session is provisioned only when Google OAuth returns an identity whose email exactly matches the Worker secret `OWNER_EMAIL`. Set this to Dhirendra's own Google email before deployment. The first successful owner sign-in creates the owner session; every other Google identity is rejected as an application owner. Once signed in, other Google accounts can be connected as Drive data sources, but they do not become Command Center users.
 
-The login button uses Google's identity verification rather than storing a separate app password. Do not add a public Supabase sign-up route. To change the owner identity, perform a deliberate operator-controlled migration of `OWNER_EMAIL` and review the existing owner data/session ownership first.
+The login button uses Google's identity verification rather than storing a separate app password. There is no public sign-up route. To change the owner identity, perform a deliberate operator-controlled migration of `OWNER_EMAIL` and review the existing owner data/session ownership first.
 
 ## Security & Access page
 
@@ -121,13 +113,11 @@ Use Wrangler secrets for:
 - `GOOGLE_CLIENT_SECRET`
 - `TOKEN_ENCRYPTION_KEY` (cryptographically random, high entropy)
 - `SESSION_SECRET` (separate cryptographically random value)
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
 - `OWNER_EMAIL`
 - `GROQ_API_KEY` (optional; enables private document classification and summaries)
 - `GROQ_MODEL` (optional; defaults to `llama-3.3-70b-versatile`)
 
-Do not put these in Vite `VITE_*` variables. Only the public Supabase URL/anon key may be exposed to the frontend.
+Do not put these in Vite `VITE_*` variables. Google tokens, session keys, owner identity, and the optional Groq key belong only in Cloudflare Worker secrets. D1 has no browser credential.
 
 ## Worker routes
 
